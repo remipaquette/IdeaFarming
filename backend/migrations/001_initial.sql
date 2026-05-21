@@ -1,0 +1,2 @@
+-- Initial migration placeholder.
+-- Domain schema will be added in subsequent slices.

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚠️ PROTOTYPE — Idea Reactions</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 40px 20px 120px;
+    }
+
+    /* ── Prototype banner ── */
+    .proto-banner {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: #7d5700;
+      margin-bottom: 28px;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Page layout ── */
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #1a1a2e;
+    }
+    .variant-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6366f1;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 20px;
+    }
+
+    /* ── Idea card ── */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.04);
+      padding: 28px;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 14px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .meta-text { display: flex; flex-direction: column; }
+    .author { font-size: 13px; font-weight: 600; color: #374151; }
+    .date   { font-size: 12px; color: #9ca3af; }
+    .badge  {
+      margin-left: auto;
+      background: #ede9fe;
+      color: #6d28d9;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 99px;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+    .card-description {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #4b5563;
+      margin-bottom: 20px;
+    }
+    .card-divider {
+      border: none;
+      border-top: 1px solid #f3f4f6;
+      margin-bottom: 20px;
+    }
+
+    /* ── Reaction area (shared wrapper) ── */
+    .reaction-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Variation A: Single upvote ── */
+    .upvote-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      transition: all .15s;
+      user-select: none;
+    }
+    .upvote-btn:hover {
+      border-color: #6366f1;
+      color: #6366f1;
+    }
+    .upvote-btn.active {
+      border-color: #6366f1;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+    .upvote-btn .arrow { font-size: 16px; }
+    .upvote-btn .count { font-size: 15px; }
+    .upvote-label {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    /* ── Variation B: Reaction set ── */
+    .reaction-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 99px;
+      border: 2px solid #e5e7eb;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      transition: all .15s;
+      user-select: none;
+    }
+    .reaction-btn:hover {
+      border-color: #6366f1;
+      background: #f5f3ff;
+    }
+    .reaction-btn.active {
+      background: #eef2ff;
+      border-color: #6366f1;
+      color: #4f46e5;
+    }
+    .reaction-btn .emoji { font-size: 16px; }
+    .reaction-btn .rcount { font-size: 13px; }
+    .reaction-btn .rname { font-size: 12px; color: #6b7280; }
+    .reaction-btn.active .rname { color: #6366f1; }
+
+    /* ── Variation C: Upvote + reactions ── */
+    .divider-v { width: 1px; height: 32px; background: #e5e7eb; }
+
+    /* ── Variation D: Impact & Effort rating ── */
+    .rating-grid { display: flex; flex-direction: column; gap: 18px; width: 100%; }
+    .rating-row  { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .rating-row-label {
+      font-size: 13px; font-weight: 600; color: #374151;
+      width: 130px; flex-shrink: 0;
+    }
+    .stars { display: flex; gap: 4px; cursor: pointer; }
+    .star {
+      font-size: 26px; color: #d1d5db;
+      transition: color .1s; user-select: none; line-height: 1;
+    }
+    .star.filled  { color: #f59e0b; }
+    .star.preview { color: #fcd34d; }
+    .rating-meta  { font-size: 12px; color: #9ca3af; }
+    .effort-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .effort-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 99px;
+      border: 2px solid #e5e7eb; background: #fff;
+      font-size: 13px; font-weight: 600; color: #374151;
+      cursor: pointer; transition: all .15s; user-select: none;
+    }
+    .effort-pill:hover          { border-color: #6366f1; background: #f5f3ff; }
+    .effort-pill.active-low    { border-color: #10b981; background: #ecfdf5; color: #065f46; }
+    .effort-pill.active-medium { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+    .effort-pill.active-high   { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+    .effort-count { font-size: 12px; opacity: .7; }
+
+    /* ── State inspector ── */
+    .state-inspector {
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    .state-inspector summary {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      user-select: none;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .state-inspector pre {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    /* ── Floating switcher bar ── */
+    .switcher-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e;
+      border-radius: 99px;
+      padding: 8px 8px 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .switcher-bar span {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 500;
+      margin-right: 4px;
+    }
+    .switcher-btn {
+      padding: 7px 16px;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      background: transparent;
+      color: #d1d5db;
+      transition: all .15s;
+    }
+    .switcher-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .switcher-btn.active { background: #6366f1; color: #fff; }
+    .bar-sep { width: 1px; height: 20px; background: rgba(255,255,255,.15); margin: 0 4px; flex-shrink: 0; }
+    .bar-group { font-size: 11px; color: #6366f1; font-weight: 700; letter-spacing: .08em; margin-right: 0; }
+  </style>
+</head>
+<body>
+
+  <div class="proto-banner">
+    ⚠️ <strong>PROTOTYPE — THROWAWAY.</strong> Answering: <em>how should employees express support for an Idea?</em> See NOTES.md for verdict.
+  </div>
+
+  <div class="page">
+    <div class="variant-label" id="variant-label">Variation A — Single upvote</div>
+
+    <!-- ── Idea card ── -->
+    <div class="card">
+      <div class="card-meta">
+        <div class="avatar">ML</div>
+        <div class="meta-text">
+          <span class="author">Marie Lapointe</span>
+          <span class="date">March 14, 2026 · 3 min read</span>
+        </div>
+        <span class="badge">Process</span>
+      </div>
+
+      <div class="card-title">Unified Employee Onboarding Portal</div>
+      <div class="card-description">
+        New hires currently search across 6 different systems to find checklists, contacts,
+        and resources. A single branded portal would cut average onboarding time by an
+        estimated 40% and reduce IT support tickets in the first 30 days. I've already
+        spoken with HR and IT — both teams are interested in owning a slice of this.
+      </div>
+
+      <hr class="card-divider">
+
+      <!-- Reaction area — swapped per variant -->
+      <div class="reaction-area" id="reaction-area">
+        <!-- injected by JS -->
+      </div>
+    </div><!-- /card -->
+
+    <!-- State inspector -->
+    <details class="state-inspector" id="state-inspector">
+      <summary>State snapshot</summary>
+      <pre id="state-pre"></pre>
+    </details>
+  </div><!-- /page -->
+
+  <!-- Floating switcher -->
+  <div class="switcher-bar">
+    <span>Variation:</span>
+    <button class="switcher-btn" data-v="a"  onclick="setVariant('a')">A — Upvote</button>
+    <div class="bar-sep"></div>
+    <span class="bar-group">B:</span>
+    <button class="switcher-btn" data-v="b1" onclick="setVariant('b1')">B1 — Minimal</button>
+    <button class="switcher-btn" data-v="b2" onclick="setVariant('b2')">B2 — +Urgent</button>
+    <button class="switcher-btn" data-v="b3" onclick="setVariant('b3')">B3 — Sentiment</button>
+    <button class="switcher-btn" data-v="b4" onclick="setVariant('b4')">B4 — Impact</button>
+    <div class="bar-sep"></div>
+    <button class="switcher-btn" data-v="c"  onclick="setVariant('c')">C — Both</button>
+    <div class="bar-sep"></div>
+    <button class="switcher-btn" data-v="d"  onclick="setVariant('d')">D — Rate it</button>
+  </div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────
+    const state = { upvotes: 42, myUpvote: false };
+
+    // Separate state per B variant so interactions don't bleed across sets
+    const reactionSets = {
+      b1: {
+        thumbsup:  { emoji: '👍', name: 'Support',    count: 12, mine: false },
+        lightbulb: { emoji: '💡', name: 'Inspiring',  count: 8,  mine: false },
+        wrench:    { emoji: '🔧', name: 'Actionable', count: 5,  mine: false },
+      },
+      b2: {
+        thumbsup:  { emoji: '👍', name: 'Support',    count: 12, mine: false },
+        lightbulb: { emoji: '💡', name: 'Inspiring',  count: 8,  mine: false },
+        wrench:    { emoji: '🔧', name: 'Actionable', count: 5,  mine: false },
+        fire:      { emoji: '🔥', name: 'Urgent',     count: 3,  mine: false },
+      },
+      b3: {
+        heart:     { emoji: '❤️',  name: 'Love it',       count: 15, mine: false },
+        surprised: { emoji: '😮', name: 'Eye-opener',    count: 6,  mine: false },
+        thinking:  { emoji: '🤔', name: 'Needs thought', count: 4,  mine: false },
+        question:  { emoji: '❓', name: 'Tell me more',  count: 7,  mine: false },
+      },
+      b4: {
+        target:    { emoji: '🎯', name: 'High impact', count: 18, mine: false },
+        check:     { emoji: '✅', name: 'Feasible',    count: 9,  mine: false },
+        lightning: { emoji: '⚡', name: 'Quick win',   count: 11, mine: false },
+        money:     { emoji: '💰', name: 'Value add',   count: 4,  mine: false },
+      },
+    };
+
+    // Rating state for Variation D (independent from reaction state)
+    const ratingState = {
+      impact: { sum: 87, count: 23, mine: null },  // avg = sum/count
+      effort: { low: 14, medium: 6, high: 3, mine: null },
+    };
+
+    const VARIANTS = {
+      a:  'Variation A — Single upvote',
+      b1: 'Variation B1 — 3 reactions (minimal)',
+      b2: 'Variation B2 — 4 reactions + urgency',
+      b3: 'Variation B3 — Sentiment set',
+      b4: 'Variation B4 — Impact set',
+      c:  'Variation C — Upvote + reactions (B2 set)',
+      d:  'Variation D — Business impact & effort rating',
+    };
+
+    // ── Read current variant from URL ──────────────────────────────
+    function currentVariant() {
+      const p = new URLSearchParams(location.search).get('v') || 'a';
+      return ['a','b1','b2','b3','b4','c','d'].includes(p) ? p : 'a';
+    }
+
+    // ── Upvote toggle ──────────────────────────────────────────────
+    function toggleUpvote() {
+      if (state.myUpvote) {
+        state.upvotes--;
+        state.myUpvote = false;
+      } else {
+        state.upvotes++;
+        state.myUpvote = true;
+      }
+      render();
+    }
+
+    // ── Impact star rating ─────────────────────────────────────────
+    function setImpact(n) {
+      if (ratingState.impact.mine === n) {
+        ratingState.impact.sum -= n;
+        ratingState.impact.count--;
+        ratingState.impact.mine = null;
+      } else {
+        if (ratingState.impact.mine !== null) {
+          ratingState.impact.sum -= ratingState.impact.mine;
+        } else {
+          ratingState.impact.count++;
+        }
+        ratingState.impact.sum += n;
+        ratingState.impact.mine = n;
+      }
+      render();
+    }
+
+    function previewStars(n) {
+      document.querySelectorAll('.star').forEach((s, i) => {
+        s.classList.toggle('preview', i < n);
+        s.classList.remove('filled');
+      });
+    }
+    function resetStars() {
+      const mine = ratingState.impact.mine || 0;
+      document.querySelectorAll('.star').forEach((s, i) => {
+        s.classList.remove('preview');
+        s.classList.toggle('filled', i < mine);
+      });
+    }
+
+    // ── Effort rating ──────────────────────────────────────────────
+    function setEffort(level) {
+      if (ratingState.effort.mine === level) {
+        ratingState.effort[level]--;
+        ratingState.effort.mine = null;
+      } else {
+        if (ratingState.effort.mine !== null) ratingState.effort[ratingState.effort.mine]--;
+        ratingState.effort[level]++;
+        ratingState.effort.mine = level;
+      }
+      render();
+    }
+
+    // ── Variation D HTML ───────────────────────────────────────────
+    function ratingHTML() {
+      const { impact, effort } = ratingState;
+      const avg = impact.count > 0 ? (impact.sum / impact.count).toFixed(1) : '—';
+      const mine = impact.mine || 0;
+
+      const starsHTML = [1,2,3,4,5].map(n =>
+        `<span class="star ${n <= mine ? 'filled' : ''}"
+          onclick="setImpact(${n})"
+          onmouseenter="previewStars(${n})"
+          onmouseleave="resetStars()">★</span>`
+      ).join('');
+
+      const pillsHTML = ['low','medium','high'].map(level => {
+        const labels = { low: '🟢 Low', medium: '🟡 Medium', high: '🔴 High' };
+        const active = effort.mine === level ? `active-${level}` : '';
+        return `<button class="effort-pill ${active}" onclick="setEffort('${level}')">
+          ${labels[level]} <span class="effort-count">${effort[level]}</span>
+        </button>`;
+      }).join('');
+
+      return `
+        <div class="rating-grid">
+          <div class="rating-row">
+            <span class="rating-row-label">Business Impact</span>
+            <div class="stars">${starsHTML}</div>
+            <span class="rating-meta">${avg} avg &middot; ${impact.count} rating${impact.count !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="rating-row">
+            <span class="rating-row-label">Effort Required</span>
+            <div class="effort-pills">${pillsHTML}</div>
+          </div>
+        </div>`;
+    }
+
+    // ── Reaction toggle ────────────────────────────────────────────
+    function toggleReaction(setKey, key) {
+      const r = reactionSets[setKey][key];
+      if (r.mine) { r.count--; r.mine = false; }
+      else        { r.count++; r.mine = true;  }
+      render();
+    }
+
+    // ── Build HTML for each variant ────────────────────────────────
+    function upvoteHTML() {
+      const cls = state.myUpvote ? 'upvote-btn active' : 'upvote-btn';
+      return `
+        <button class="${cls}" onclick="toggleUpvote()">
+          <span class="arrow">▲</span>
+          <span class="count">${state.upvotes}</span>
+        </button>
+        <span class="upvote-label">
+          ${state.myUpvote ? 'You supported this idea' : 'Support this idea'}
+        </span>`;
+    }
+
+    function reactionsHTML(setKey) {
+      return Object.entries(reactionSets[setKey]).map(([key, r]) => {
+        const cls = r.mine ? 'reaction-btn active' : 'reaction-btn';
+        return `
+          <button class="${cls}" onclick="toggleReaction('${setKey}','${key}')">
+            <span class="emoji">${r.emoji}</span>
+            <span class="rcount">${r.count}</span>
+            <span class="rname">${r.name}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function renderVariant(v) {
+      const area = document.getElementById('reaction-area');
+      if (v === 'a') {
+        area.innerHTML = upvoteHTML();
+      } else if (v === 'c') {
+        area.innerHTML = upvoteHTML()
+          + '<div class="divider-v"></div>'
+          + reactionsHTML('b2');
+      } else if (v === 'd') {
+        area.innerHTML = ratingHTML();
+      } else {
+        // b1 / b2 / b3 / b4
+        area.innerHTML = reactionsHTML(v);
+      }
+    }
+
+    // ── State inspector ────────────────────────────────────────────
+    function renderState() {
+      const v = currentVariant();
+      const snap = { variant: v };
+      if (v === 'd') {
+        const { impact, effort } = ratingState;
+        snap.impact = {
+          avg: impact.count > 0 ? +(impact.sum / impact.count).toFixed(2) : null,
+          count: impact.count,
+          mine: impact.mine,
+        };
+        snap.effort = { low: effort.low, medium: effort.medium, high: effort.high, mine: effort.mine };
+      } else {
+        snap.upvotes  = state.upvotes;
+        snap.myUpvote = state.myUpvote;
+        if (reactionSets[v]) {
+          snap.reactions = Object.fromEntries(
+            Object.entries(reactionSets[v]).map(([k, r]) => [k, { count: r.count, mine: r.mine }])
+          );
+        } else if (v === 'c') {
+          snap.reactions = Object.fromEntries(
+            Object.entries(reactionSets.b2).map(([k, r]) => [k, { count: r.count, mine: r.mine }])
+          );
+        }
+      }
+      document.getElementById('state-pre').textContent =
+        JSON.stringify(snap, null, 2);
+    }
+
+    // ── Switcher bar sync ──────────────────────────────────────────
+    function syncSwitcher(v) {
+      document.querySelectorAll('.switcher-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.v === v);
+      });
+      document.getElementById('variant-label').textContent = VARIANTS[v];
+    }
+
+    // ── Main render ────────────────────────────────────────────────
+    function render() {
+      const v = currentVariant();
+      renderVariant(v);
+      renderState();
+      syncSwitcher(v);
+    }
+
+    // ── Switch variant (no page reload) ───────────────────────────
+    function setVariant(v) {
+      history.replaceState(null, '', '?v=' + v);
+      render();
+    }
+
+    // ── Init ───────────────────────────────────────────────────────
+    render();
+  </script>
+</body>
+</html>
