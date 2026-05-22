@@ -18,6 +18,14 @@ services:
     environment:
       DATABASE_URL: postgres://ideafarming:ideafarming@db:5432/ideafarming
       PORT: "3000"
+      JWT_SECRET: "dev-secret-change-in-production-min-32-chars!!"
+      CORS_ORIGIN: "http://localhost:5173"
+      NODE_ENV: "development"
+      ADMIN_SEED_EMAIL: "admin@company.com"
+      ADMIN_SEED_PASSWORD: "Admin1234!"
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       - "3000:3000"
     depends_on:
@@ -30,3 +38,6 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+
+volumes:
+  uploads_data:
