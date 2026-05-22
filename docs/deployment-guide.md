@@ -42,6 +42,7 @@ IdeaFarming_Vibe/
 ├── backend/
 │   ├── Dockerfile            ← multi-stage build (builder + runtime)
 │   ├── migrations/           ← SQL files, applied automatically on start
+│   ├── scripts/              ← one-off admin utilities (run from host, not container)
 │   └── src/
 ├── frontend/
 │   ├── Dockerfile
@@ -206,6 +207,10 @@ Migration files are located in `backend/migrations/` and applied in alphabetical
 | `004_ideas.sql` | Ideas table |
 | `005_ratings.sql` | Business impact and effort ratings |
 | `006_comments.sql` | Threaded comments |
+| `007_idea_discovery.sql` | Idea discovery features |
+| `008_innovation_day.sql` | Innovation Day scheduling |
+| `009_challenge_promotion.sql` | Challenge / promotion workflow |
+| `010_report.sql` | Reporting aggregates |
 
 > **Note:** As the application is still in development, additional migration files will be added. No manual SQL execution is needed — simply pull the latest code and restart the backend container.
 
@@ -237,11 +242,19 @@ Configure your load balancer or monitoring tool to poll this endpoint.
 
 ## 10. User Provisioning
 
-There is no self-registration UI in v1. User accounts are created by an Admin through the application's admin interface, or via the `backend/scripts/create-admin.ts` script for additional admin accounts:
+There is no self-registration UI in v1. User accounts are created by an Admin through the application's admin interface.
+
+To create additional admin accounts, use the `backend/scripts/create-admin.ts` script. **This must be run from the host machine** (or a CI runner) against the exposed database port — the production Docker image does not include `ts-node` and does not copy `scripts/`.
 
 ```bash
-docker compose exec backend npx ts-node scripts/create-admin.ts
+# From the backend/ directory on the host (requires Node.js + dependencies installed locally)
+cd backend
+npm install
+$env:DATABASE_URL="postgres://ideafarming:<password>@localhost:5432/ideafarming"
+npx ts-node --transpile-only --skip-project scripts/create-admin.ts admin@company.com <password>
 ```
+
+Alternatively, set `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` in the environment before first boot to have the backend seed the initial admin automatically (see Section 4.1).
 
 ---
 
@@ -276,6 +289,7 @@ The following items are not yet production-ready and should be addressed before 
 
 | Gap | Description |
 |---|---|
+| **PostgreSQL data volume** | The `db` service in `docker-compose.yml` has **no named volume** for `/var/lib/postgresql/data`. Running `docker compose down` will destroy all database data. Add a named volume (e.g. `postgres_data`) to both the `db` service and the `volumes:` block before any non-throwaway deployment. |
 | Frontend Dockerfile | Currently runs the Vite **dev server** — must be replaced with a static build + Nginx for production |
 | TLS / HTTPS | Not configured in-app — must be handled by a reverse proxy |
 | PostgreSQL port exposure | Port 5432 is published to the host in `docker-compose.yml` — remove for production |
